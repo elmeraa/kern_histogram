@@ -1,0 +1,58 @@
+---
+title: "Histogram"
+author: "Elmera Azadpour"
+date: "8/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+```
+
+# Read in Data
+```{r}
+kern_2015 <- read_sf(here("kern2015"), layer = "kern2015") %>% 
+  clean_names() %>% 
+  select(dt_act,dt_inact)
+
+kern_2011 <- read_sf(here("kern2011"), layer = "kern2011") %>% 
+  clean_names() %>% 
+  select(dt_act,dt_inact)
+```
+
+# Histogram of start and end dates, 2015
+```{r}
+# 2015 active
+ggplot(kern_2015, aes(x= dt_act)) + 
+  geom_histogram(bins=10) +
+  scale_x_date(date_breaks = "1 month") +
+   theme(axis.text.x = element_text(face="bold", angle=90))+
+  ggtitle("Date active, 2015")
+# 2015 inactive
+ggplot(kern_2015, aes(x= dt_inact)) + 
+  geom_histogram(bins=10)+
+  scale_x_date(date_breaks = "1 month") +
+   theme(axis.text.x = element_text(face="bold", angle=90))+
+  ggtitle("Date inactive, 2015")
+```
+
+
+# Histogram of start and end dates, 2011
+```{r}
+# 2015 active
+ggplot(kern_2011, aes(x= dt_act)) + 
+  geom_histogram(bins=20) +
+  scale_x_date(date_breaks = "1 month") +
+   theme(axis.text.x = element_text(face="bold", angle=90)) +
+  ggtitle("Date active, 2011")
+# 2015 inactive
+ggplot(kern_2011, aes(x= dt_inact)) + 
+  geom_histogram(bins=20)+
+  scale_x_date(date_breaks = "1 month") +
+   theme(axis.text.x = element_text(face="bold", angle=90))+
+  ggtitle("Date inactive, 2011")
+```
