@@ -1,5 +1,5 @@
 ---
-title: "Histogram"
+title: "Kern County Dates Active/Inactive Histograms"
 author: "Elmera Azadpour"
 date: "8/25/2021"
 output: html_document
@@ -13,35 +13,51 @@ library(janitor)
 library(sf)
 ```
 
-# Read in Data
+### Read in Data
 ```{r}
+# Note: Comm_code = 66000 is  fields that were cultivated then fallowed, but only available for 2017-2019
+kern_2011 <- read_sf(here("kern2011"), layer = "kern2011") %>% 
+  clean_names() %>% 
+  select(dt_act,dt_inact)
+
+kern_2014 <- read_sf(here("kern2014"), layer = "kern2014") %>% 
+  clean_names()
+
 kern_2015 <- read_sf(here("kern2015"), layer = "kern2015") %>% 
   clean_names() %>% 
   select(dt_act,dt_inact)
 
-kern_2011 <- read_sf(here("kern2011"), layer = "kern2011") %>% 
-  clean_names() %>% 
-  select(dt_act,dt_inact)
+kern_2016 <- read_sf(here("kern2016"), layer = "kern2016") %>% 
+  clean_names() 
+
+kern_2017 <- read_sf(here("kern2017"), layer = "kern2017") %>% 
+  clean_names() 
+
+kern_2018 <- read_sf(here("kern2018"), layer = "kern2018") %>% 
+  clean_names() 
+
+kern_2019 <- read_sf(here("kern2019"), layer = "kern2019") %>% 
+  clean_names() 
 ```
 
-# Histogram of start and end dates, 2015
+### Histogram of start and end dates, 2015
 ```{r}
 # 2015 active
 ggplot(kern_2015, aes(x= dt_act)) + 
-  geom_histogram(bins=10) +
+  geom_histogram(bins=20) +
   scale_x_date(date_breaks = "1 month") +
    theme(axis.text.x = element_text(face="bold", angle=90))+
   ggtitle("Date active, 2015")
 # 2015 inactive
 ggplot(kern_2015, aes(x= dt_inact)) + 
-  geom_histogram(bins=10)+
+  geom_histogram(bins=20)+
   scale_x_date(date_breaks = "1 month") +
    theme(axis.text.x = element_text(face="bold", angle=90))+
   ggtitle("Date inactive, 2015")
 ```
 
 
-# Histogram of start and end dates, 2011
+### Histogram of start and end dates, 2011
 ```{r}
 # 2015 active
 ggplot(kern_2011, aes(x= dt_act)) + 
@@ -56,3 +72,205 @@ ggplot(kern_2011, aes(x= dt_inact)) +
    theme(axis.text.x = element_text(face="bold", angle=90))+
   ggtitle("Date inactive, 2011")
 ```
+
+
+### Lets add a column to the data frame that indicates 66000 = fallowed and non & add a column that gives orgnaic cropland them a new comm code: https://docs.google.com/spreadsheets/d/159WnaY9ubksf3o1NNounLtWanzmQ38TjbSaKNHXFyB0/edit?usp=sharing 
+```{r}
+kern_2017$comm_code <-  as.numeric(kern_2017$comm_code ) 
+
+kern_2017 <- read_sf(here("kern2017"), layer = "kern2017") %>% 
+  clean_names() %>% 
+  select(dt_act,dt_inact, comm, comm_code) %>% 
+   mutate(landuse = case_when(comm_code == 66000 ~ 'fallow',
+                             TRUE ~ 'cropland')) %>% 
+   mutate(new_comm_code = case_when(str_detect(comm, "ALMOND-ORGANIC") ~ 30012,
+                                    str_detect(comm, "APPLE-ORGANIC") ~ 40012,
+                                    str_detect(comm, "APRICOT-ORGANIC") ~ 40012,
+                                    str_detect(comm, "ARUGULA-ORGANIC") ~ 130562,
+                                    str_detect(comm, "BEAN SUCCULENT-ORGANIC") ~ 150032,
+                                    str_detect(comm, "BEET-ORGANIC") ~ 291092,
+                                    str_detect(comm, "BLUEBERRY-ORGAN") ~ 10092,
+                                    str_detect(comm, "BROCCOLI-ORGANI") ~ 130052,
+                                    str_detect(comm, "CABBAGE-ORGANIC") ~ 130072,
+                                    str_detect(comm, "CARROT-ORGANIC") ~ 291112,
+                                    str_detect(comm, "CAULIFLOWER-ORGANIC") ~ 130082,
+                                    str_detect(comm, "CHERRY-ORGANIC") ~ 50022,
+                                    str_detect(comm, "CILANTRO-ORGANI") ~ 135012,
+                                    str_detect(comm, "COLLARD-ORGANIC") ~ 130092,
+                                    str_detect(comm, "CORN, HUMAN CON-ORGANIC") ~ 291192,
+                                    str_detect(comm, "CUCUMBER-ORGANI") ~ 100102,
+                                    str_detect(comm, "DILL-ORGANIC") ~ 80152,
+                                    str_detect(comm, "EGGPLANT-ORGANI") ~ 110012,
+                                    str_detect(comm, "FENNEL-ORGANIC") ~ 280082,
+                                    str_detect(comm, "GARLIC-ORGANIC") ~ 140072,
+                                    str_detect(comm, "GRAPE-ORGANIC") ~ 291412,
+                                    str_detect(comm, "GRAPE, WINE-ORGANIC") ~ 291432,
+                                    str_detect(comm, "GRAPEFRUIT-ORGANIC") ~ 20022,
+                                    str_detect(comm, "KALE-ORGANIC") ~ 130112,
+                                    str_detect(comm, "KOHLRABI-ORGANI") ~ 130122,
+                                    str_detect(comm, "CHERRY-ORGANIC") ~ 50022,
+                                    str_detect(comm, "LEMON-ORGANIC") ~ 20042,
+                                    str_detect(comm, "LETTUCE HEAD-ORGANIC") ~ 130452,
+                                    str_detect(comm, "MELON-ORGANIC") ~ 291222,
+                                    str_detect(comm, "MINT-ORGANIC") ~ 280122,
+                                    str_detect(comm, "OAT-ORGANIC") ~ 291252,
+                                    str_detect(comm, "OKRA-ORGANIC") ~ 150152,
+                                    str_detect(comm, "ONION DRY ETC-ORGANIC") ~ 140112,
+                                    str_detect(comm, "ORANGE-ORGANIC") ~ 20062,
+                                    str_detect(comm, "PARSLEY-ORGANIC") ~ 130222,
+                                    str_detect(comm, "PEAS-ORGANIC") ~ 291272,
+                                    str_detect(comm, "PEPPER FRUITNG-ORGANIC") ~ 110032,
+                                    str_detect(comm, "PEPPER SPICE-ORGANIC") ~ 80502,
+                                    str_detect(comm, "PERSIMMON-ORGANIC") ~ 60122,
+                                    str_detect(comm, "POMEGRANATE-ORGANIC") ~ 60152,
+                                    str_detect(comm, "POTATO-ORGANIC") ~ 140132,
+                                    str_detect(comm, "RADISH-ORGANIC") ~ 140142,
+                                    str_detect(comm, "SAFFLOWER-ORGANIC") ~ 291292,
+                                    str_detect(comm, "SPINACH-ORGANICC") ~ 130242,
+                                    str_detect(comm, "SQUASH-ORGANIC") ~ 100122,
+                                    str_detect(comm, "SQUASH, WINTER-ORGANIC") ~ 100142,
+                                    str_detect(comm, "SWISS CHARD-ORGANIC") ~ 130252,
+                                    str_detect(comm, "TANGELO-ORGANIC") ~ 20072,
+                                    str_detect(comm, "TANGERINE-ORGANIC") ~ 20082,
+                                    str_detect(comm, "TOMATO PROCESS-ORGANIC") ~ 291362,
+                                    str_detect(comm, "TOMATO-ORGANIC") ~ 110052,
+                                    str_detect(comm, "TURNIP-ORGANIC") ~ 291372,
+                                    str_detect(comm, "UNCULTIVATED AG - ORGANIC") ~ 66000,
+                                    str_detect(comm, "WATERMELON-ORGANIC") ~ 100082,
+                                    str_detect(comm, "WHEAT-ORGANIC") ~ 291392
+                                    ))
+
+kern_2017$new_comm_code[is.na(kern_2017$new_comm_code)] <- kern_2017$comm_code[is.na(kern_2017$new_comm_code)]
+
+ 
+
+kern_2018 <- read_sf(here("kern2018"), layer = "kern2018") %>% 
+clean_names() %>% 
+  select(dt_act,dt_inact, comm, comm_code) %>% 
+   mutate(landuse = case_when(comm_code == 66000 ~ 'fallow',
+                             TRUE ~ 'cropland')) %>% 
+   mutate(new_comm_code = case_when(str_detect(comm, "ALMOND-ORGANIC") ~ 30012,
+                                    str_detect(comm, "APPLE-ORGANIC") ~ 40012,
+                                    str_detect(comm, "APRICOT-ORGANIC") ~ 40012,
+                                    str_detect(comm, "ARUGULA-ORGANIC") ~ 130562,
+                                    str_detect(comm, "BEAN SUCCULENT-ORGANIC") ~ 150032,
+                                    str_detect(comm, "BEET-ORGANIC") ~ 291092,
+                                    str_detect(comm, "BLUEBERRY-ORGAN") ~ 10092,
+                                    str_detect(comm, "BROCCOLI-ORGANI") ~ 130052,
+                                    str_detect(comm, "CABBAGE-ORGANIC") ~ 130072,
+                                    str_detect(comm, "CARROT-ORGANIC") ~ 291112,
+                                    str_detect(comm, "CAULIFLOWER-ORGANIC") ~ 130082,
+                                    str_detect(comm, "CHERRY-ORGANIC") ~ 50022,
+                                    str_detect(comm, "CILANTRO-ORGANI") ~ 135012,
+                                    str_detect(comm, "COLLARD-ORGANIC") ~ 130092,
+                                    str_detect(comm, "CORN, HUMAN CON-ORGANIC") ~ 291192,
+                                    str_detect(comm, "CUCUMBER-ORGANI") ~ 100102,
+                                    str_detect(comm, "DILL-ORGANIC") ~ 80152,
+                                    str_detect(comm, "EGGPLANT-ORGANI") ~ 110012,
+                                    str_detect(comm, "FENNEL-ORGANIC") ~ 280082,
+                                    str_detect(comm, "GARLIC-ORGANIC") ~ 140072,
+                                    str_detect(comm, "GRAPE-ORGANIC") ~ 291412,
+                                    str_detect(comm, "GRAPE, WINE-ORGANIC") ~ 291432,
+                                    str_detect(comm, "GRAPEFRUIT-ORGANIC") ~ 20022,
+                                    str_detect(comm, "KALE-ORGANIC") ~ 130112,
+                                    str_detect(comm, "KOHLRABI-ORGANI") ~ 130122,
+                                    str_detect(comm, "CHERRY-ORGANIC") ~ 50022,
+                                    str_detect(comm, "LEMON-ORGANIC") ~ 20042,
+                                    str_detect(comm, "LETTUCE HEAD-ORGANIC") ~ 130452,
+                                    str_detect(comm, "MELON-ORGANIC") ~ 291222,
+                                    str_detect(comm, "MINT-ORGANIC") ~ 280122,
+                                    str_detect(comm, "OAT-ORGANIC") ~ 291252,
+                                    str_detect(comm, "OKRA-ORGANIC") ~ 150152,
+                                    str_detect(comm, "ONION DRY ETC-ORGANIC") ~ 140112,
+                                    str_detect(comm, "ORANGE-ORGANIC") ~ 20062,
+                                    str_detect(comm, "PARSLEY-ORGANIC") ~ 130222,
+                                    str_detect(comm, "PEAS-ORGANIC") ~ 291272,
+                                    str_detect(comm, "PEPPER FRUITNG-ORGANIC") ~ 110032,
+                                    str_detect(comm, "PEPPER SPICE-ORGANIC") ~ 80502,
+                                    str_detect(comm, "PERSIMMON-ORGANIC") ~ 60122,
+                                    str_detect(comm, "POMEGRANATE-ORGANIC") ~ 60152,
+                                    str_detect(comm, "POTATO-ORGANIC") ~ 140132,
+                                    str_detect(comm, "RADISH-ORGANIC") ~ 140142,
+                                    str_detect(comm, "SAFFLOWER-ORGANIC") ~ 291292,
+                                    str_detect(comm, "SPINACH-ORGANICC") ~ 130242,
+                                    str_detect(comm, "SQUASH-ORGANIC") ~ 100122,
+                                    str_detect(comm, "SQUASH, WINTER-ORGANIC") ~ 100142,
+                                    str_detect(comm, "SWISS CHARD-ORGANIC") ~ 130252,
+                                    str_detect(comm, "TANGELO-ORGANIC") ~ 20072,
+                                    str_detect(comm, "TANGERINE-ORGANIC") ~ 20082,
+                                    str_detect(comm, "TOMATO PROCESS-ORGANIC") ~ 291362,
+                                    str_detect(comm, "TOMATO-ORGANIC") ~ 110052,
+                                    str_detect(comm, "TURNIP-ORGANIC") ~ 291372,
+                                    str_detect(comm, "UNCULTIVATED AG - ORGANIC") ~ 66000,
+                                    str_detect(comm, "WATERMELON-ORGANIC") ~ 100082,
+                                    str_detect(comm, "WHEAT-ORGANIC") ~ 291392
+                                    ))
+
+kern_2018$new_comm_code[is.na(kern_2018$new_comm_code)] <- kern_2018$comm_code[is.na(kern_2018$new_comm_code)]
+
+kern_2019 <- read_sf(here("kern2019"), layer = "kern2019") %>% 
+clean_names() %>% 
+  select(dt_act,dt_inact, comm, comm_code) %>% 
+   mutate(landuse = case_when(comm_code == 66000 ~ 'fallow',
+                             TRUE ~ 'cropland')) %>% 
+   mutate(new_comm_code = case_when(str_detect(comm, "ALMOND-ORGANIC") ~ 30012,
+                                    str_detect(comm, "APPLE-ORGANIC") ~ 40012,
+                                    str_detect(comm, "APRICOT-ORGANIC") ~ 40012,
+                                    str_detect(comm, "ARUGULA-ORGANIC") ~ 130562,
+                                    str_detect(comm, "BEAN SUCCULENT-ORGANIC") ~ 150032,
+                                    str_detect(comm, "BEET-ORGANIC") ~ 291092,
+                                    str_detect(comm, "BLUEBERRY-ORGAN") ~ 10092,
+                                    str_detect(comm, "BROCCOLI-ORGANI") ~ 130052,
+                                    str_detect(comm, "CABBAGE-ORGANIC") ~ 130072,
+                                    str_detect(comm, "CARROT-ORGANIC") ~ 291112,
+                                    str_detect(comm, "CAULIFLOWER-ORGANIC") ~ 130082,
+                                    str_detect(comm, "CHERRY-ORGANIC") ~ 50022,
+                                    str_detect(comm, "CILANTRO-ORGANI") ~ 135012,
+                                    str_detect(comm, "COLLARD-ORGANIC") ~ 130092,
+                                    str_detect(comm, "CORN, HUMAN CON-ORGANIC") ~ 291192,
+                                    str_detect(comm, "CUCUMBER-ORGANI") ~ 100102,
+                                    str_detect(comm, "DILL-ORGANIC") ~ 80152,
+                                    str_detect(comm, "EGGPLANT-ORGANI") ~ 110012,
+                                    str_detect(comm, "FENNEL-ORGANIC") ~ 280082,
+                                    str_detect(comm, "GARLIC-ORGANIC") ~ 140072,
+                                    str_detect(comm, "GRAPE-ORGANIC") ~ 291412,
+                                    str_detect(comm, "GRAPE, WINE-ORGANIC") ~ 291432,
+                                    str_detect(comm, "GRAPEFRUIT-ORGANIC") ~ 20022,
+                                    str_detect(comm, "KALE-ORGANIC") ~ 130112,
+                                    str_detect(comm, "KOHLRABI-ORGANI") ~ 130122,
+                                    str_detect(comm, "CHERRY-ORGANIC") ~ 50022,
+                                    str_detect(comm, "LEMON-ORGANIC") ~ 20042,
+                                    str_detect(comm, "LETTUCE HEAD-ORGANIC") ~ 130452,
+                                    str_detect(comm, "MELON-ORGANIC") ~ 291222,
+                                    str_detect(comm, "MINT-ORGANIC") ~ 280122,
+                                    str_detect(comm, "OAT-ORGANIC") ~ 291252,
+                                    str_detect(comm, "OKRA-ORGANIC") ~ 150152,
+                                    str_detect(comm, "ONION DRY ETC-ORGANIC") ~ 140112,
+                                    str_detect(comm, "ORANGE-ORGANIC") ~ 20062,
+                                    str_detect(comm, "PARSLEY-ORGANIC") ~ 130222,
+                                    str_detect(comm, "PEAS-ORGANIC") ~ 291272,
+                                    str_detect(comm, "PEPPER FRUITNG-ORGANIC") ~ 110032,
+                                    str_detect(comm, "PEPPER SPICE-ORGANIC") ~ 80502,
+                                    str_detect(comm, "PERSIMMON-ORGANIC") ~ 60122,
+                                    str_detect(comm, "POMEGRANATE-ORGANIC") ~ 60152,
+                                    str_detect(comm, "POTATO-ORGANIC") ~ 140132,
+                                    str_detect(comm, "RADISH-ORGANIC") ~ 140142,
+                                    str_detect(comm, "SAFFLOWER-ORGANIC") ~ 291292,
+                                    str_detect(comm, "SPINACH-ORGANICC") ~ 130242,
+                                    str_detect(comm, "SQUASH-ORGANIC") ~ 100122,
+                                    str_detect(comm, "SQUASH, WINTER-ORGANIC") ~ 100142,
+                                    str_detect(comm, "SWISS CHARD-ORGANIC") ~ 130252,
+                                    str_detect(comm, "TANGELO-ORGANIC") ~ 20072,
+                                    str_detect(comm, "TANGERINE-ORGANIC") ~ 20082,
+                                    str_detect(comm, "TOMATO PROCESS-ORGANIC") ~ 291362,
+                                    str_detect(comm, "TOMATO-ORGANIC") ~ 110052,
+                                    str_detect(comm, "TURNIP-ORGANIC") ~ 291372,
+                                    str_detect(comm, "UNCULTIVATED AG - ORGANIC") ~ 66000,
+                                    str_detect(comm, "WATERMELON-ORGANIC") ~ 100082,
+                                    str_detect(comm, "WHEAT-ORGANIC") ~ 291392
+                                    ))
+
+kern_2019$new_comm_code[is.na(kern_2019$new_comm_code)] <- kern_2019$comm_code[is.na(kern_2019$new_comm_code)]
+
+```
+
