@@ -292,12 +292,12 @@ ggplot() +
   ggtitle("testing") # quick plot to check everything looks right 
 
 ## exporting as shps 
-st_write(kern_2017,
-         "kern2017new.shp", driver = "ESRI Shapefile")
-st_write(kern_2018,
-         "kern2018new.shp", driver = "ESRI Shapefile")
-st_write(kern_2019,
-         "kern2019new.shp", driver = "ESRI Shapefile")
+# st_write(kern_2017,
+#          "kern2017new.shp", driver = "ESRI Shapefile")
+# st_write(kern_2018,
+#          "kern2018new.shp", driver = "ESRI Shapefile")
+# st_write(kern_2019,
+#          "kern2019new.shp", driver = "ESRI Shapefile")
 
 ```
 
