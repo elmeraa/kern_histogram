@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/802076/24cf36f053354a9cbdd6da8c71e94887
+bundleId: https://api.rpubs.com/api/v1/document/802076/24cf36f053354a9cbdd6da8c71e94887
+url: http://rpubs.com/elmera/802076
+when: 1630449531.41437

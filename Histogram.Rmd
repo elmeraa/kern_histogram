@@ -1,5 +1,5 @@
 ---
-title: "Kern County Dates Active/Inactive Histograms"
+title: "Kern County Dates Active/Inactive Histograms & Renaming organic croplands"
 author: "Elmera Azadpour"
 date: "8/25/2021"
 output: html_document
@@ -271,6 +271,33 @@ clean_names() %>%
                                     ))
 
 kern_2019$new_comm_code[is.na(kern_2019$new_comm_code)] <- kern_2019$comm_code[is.na(kern_2019$new_comm_code)]
+
+```
+
+
+### Exporting as csv or shp for GEE 
+```{r}
+## Export the new dfs  as csvs 
+write.csv(kern_2017,file ="kern2017new.csv", row.names =  FALSE, fileEncoding="UTF-16LE")
+write.csv(kern_2018,file ="kern2018new.csv", row.names =  FALSE, fileEncoding="UTF-16LE")
+write.csv(kern_2019,file ="kern2019new.csv", row.names =  FALSE, fileEncoding="UTF-16LE")
+
+## Export the new dfs as shapefiles instead
+kern_2017 <- st_transform(kern_2017, st_crs(kern_2016))
+# st_crs(kern_2017) #to check Coordinate Reference System
+kern_2018 <- st_transform(kern_2018, st_crs(kern_2016))
+kern_2019 <- st_transform(kern_2019, st_crs(kern_2016))
+ggplot() +
+  geom_sf(data = kern_2017) +
+  ggtitle("testing") # quick plot to check everything looks right 
+
+## exporting as shps 
+st_write(kern_2017,
+         "kern2017new.shp", driver = "ESRI Shapefile")
+st_write(kern_2018,
+         "kern2018new.shp", driver = "ESRI Shapefile")
+st_write(kern_2019,
+         "kern2019new.shp", driver = "ESRI Shapefile")
 
 ```
 
